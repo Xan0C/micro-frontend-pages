@@ -82,19 +82,8 @@ app.prepare().then(() => connect()).then(() => {
     const server = express();
     const Beer = mongoose.model('beer', BeerSchema);
 
-    server.get('/items', (req, res) => app.render(req, res, '/items'));
-
-    server.get('/items/:id', (req, res) => {
-      return app.render(req, res, '/item', Object.assign({id: req.params.id}, req.query))
-    });
-
-    server.get('/checkout', (req, res) => app.render(req, res, '/checkout'));
-    server.get('/docs', (req, res) => app.render(req, res, '/docs'));
-
-    server.get('/home', async (req, res) => {
-      const beers = await Beer.find({});
-      console.log(beers);
-      return app.render(req, res, '/');
+    server.get('/beers', async (req, res) => {
+      res.send(await Beer.find({}));
     });
 
     server.get('/', (req, res) => app.render(req, res, '/'));
