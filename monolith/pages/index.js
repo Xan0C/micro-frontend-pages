@@ -31,7 +31,6 @@ const Index = ({beers}) => <div>
     const res = await fetch('http://localhost:3000/beers');
     console.log(res.responseText);
     const json = await res.json();
-    console.log(json);
     return {beers: json};
   };
 

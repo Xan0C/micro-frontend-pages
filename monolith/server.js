@@ -1,6 +1,7 @@
 const dotenv = require('dotenv');
 dotenv.config();
 
+const redis = require('redis');
 const express = require('express');
 const next = require('next');
 const mongoose = require('mongoose');
@@ -81,9 +82,23 @@ const handle = app.getRequestHandler();
 app.prepare().then(() => connect()).then(() => {
     const server = express();
     const Beer = mongoose.model('beer', BeerSchema);
+    const client = redis.createClient(6379);
 
-    server.get('/beers', async (req, res) => {
-      res.send(await Beer.find({}));
+    server.get('/beers', (req, res) => {
+      client.get('beersCache', (err, beers) => {
+        if (beers) {
+          console.log('from redis cache');
+          res.send(JSON.parse(beers));
+        } else {
+          setTimeout(async () => {
+            console.time('db_request');
+            const beers = await Beer.find({});
+            console.timeEnd('db_request');
+            client.setex('beersCache', 10, JSON.stringify(beers));
+            res.send(beers);
+          }, 4000);
+        }
+      });
     });
 
     server.get('/', (req, res) => app.render(req, res, '/'));
