@@ -1,6 +1,6 @@
 const express = require('express');
 const next = require('next');
-const port = parseInt(process.env.PORT, 10);
+const port = parseInt(process.env.PORT || 5000, 10);
 const isProduction = process.env.NODE_ENV === 'production';
 
 const app = next({

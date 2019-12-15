@@ -72,43 +72,43 @@ const BeerSchema = new Schema({
 });
 
 const app = next({
-    isProduction,
-    dev: !isProduction,
-    isDevelopment: !isProduction,
+  isProduction,
+  dev: !isProduction,
+  isDevelopment: !isProduction,
 });
 
 const handle = app.getRequestHandler();
 
 app.prepare().then(() => connect()).then(() => {
-    const server = express();
-    const Beer = mongoose.model('beer', BeerSchema);
-    //const client = redis.createClient(6379);
+  const server = express();
+  const Beer = mongoose.model('beer', BeerSchema);
+  //const client = redis.createClient(process.env.REDIS_URL);
 
-    server.get('/beers', async (req, res) => {
-      res.send(await Beer.find({}));
-      // client.get('beersCache', (err, beers) => {
-      //   if (beers) {
-      //     console.log('from redis cache');
-      //     res.send(JSON.parse(beers));
-      //   } else {
-      //     setTimeout(async () => {
-      //       console.time('db_request');
-      //       const beers = await Beer.find({});
-      //       console.timeEnd('db_request');
-      //       client.setex('beersCache', 10, JSON.stringify(beers));
-      //       res.send(beers);
-      //     }, 4000);
-      //   }
-      // });
-    });
+  server.get('/beers', async (req, res) => {
+    res.send(await Beer.find({}));
+    // client.get('beersCache', (err, beers) => {
+    //   if (beers) {
+    //     console.log('from redis cache');
+    //     res.send(JSON.parse(beers));
+    //   } else {
+    //     setTimeout(async () => {
+    //       console.time('db_request');
+    //       const beers = await Beer.find({});
+    //       console.timeEnd('db_request');
+    //       client.setex('beersCache', 120, JSON.stringify(beers));
+    //       res.send(beers);
+    //     }, 1000);
+    //   }
+    // });
+  });
 
-    server.get('/', (req, res) => app.render(req, res, '/'));
+  server.get('/firstSection', (req, res) => app.render(req, res, '/firstSection'));
 
-    server.get('/*', (req, res) => handle(req, res));
+  server.get('/*', (req, res) => handle(req, res));
 
-    server.listen(port, err => {
-        if(err) throw err;
-        console.log(`> Read on http://localhost:${port}`);
-    })
+  server.listen(port, err => {
+    if(err) throw err;
+    console.log(`> Read on http://localhost:${port}`);
+  })
 }).catch(err => console.error(err));
 

@@ -1,41 +1,69 @@
 version: '2'
 
 services:
-  micro-frontend-docs-page:
-    container_name: micro-frontend-docs-page
-    build: docs-page
-    networks:
-      - local-network
+  redis_cache:
+    image: redis
     environment:
-      - NODE_ENV=production
-      - PORT=5000
+      - ALLOW_EMPTY_PASSWORD=yes
+      - REDIS_DISABLE_COMMANDS=FLUSHDB,FLUSHALL
+    expose:
+      - 6379
 
-  micro-frontend-items-page:
-    container_name: micro-frontend-items-page
-    build: items-page
+  micro-frontend-first-section-fragment:
+    container_name: micro-frontend-firstSection-fragment
+    build: firstSection-fragment
+    links:
+      - redis_cache
     networks:
       - local-network
     environment:
+      - REDIS_URL=redis://redis_cache
       - NODE_ENV=production
       - PORT=5000
+    depends_on:
+      - redis_cache
+
+  micro-frontend-beer-of-the-day-fragment:
+    container_name: micro-frontend-beerOfTheDay-fragment
+    build: beerOfTheDay-fragment
+    links:
+      - redis_cache
+    networks:
+      - local-network
+    environment:
+      - REDIS_URL=redis://redis_cache
+      - NODE_ENV=production
+      - PORT=5000
+    depends_on:
+      - redis_cache
+
+  micro-frontend-beer-table-fragment:
+    container_name: micro-frontend-beerTable-fragment
+    build: beerTable-fragment
+    links:
+      - redis_cache
+    networks:
+      - local-network
+    environment:
+      - REDIS_URL=redis://redis_cache
+      - NODE_ENV=production
+      - PORT=5000
+    depends_on:
+      - redis_cache
   
   micro-frontend-home-page:
     container_name: micro-frontend-home-page
     build: home-page
+    links:
+      - redis_cache
     networks:
       - local-network
     environment:
+      - REDIS_URL=redis://redis_cache
       - NODE_ENV=production
       - PORT=5000
-
-  micro-frontend-checkout-page:
-    container_name: micro-frontend-checkout-page
-    build: checkout-page
-    networks:
-      - local-network
-    environment:
-      - NODE_ENV=production
-      - PORT=5000
+    depends_on:
+      - redis_cache
 
   micro-frontend-nginx:
     container_name: micro-frontend-nginx
@@ -47,10 +75,11 @@ services:
     networks:
       - local-network
     depends_on:
+      - redis_cache
       - micro-frontend-home-page
-      - micro-frontend-docs-page
-      - micro-frontend-items-page
-      - micro-frontend-checkout-page
+      - micro-frontend-beer-table-fragment
+      - micro-frontend-beer-of-the-day-fragment
+      - micro-frontend-first-section-fragment
 
 networks:
   local-network:

@@ -27,11 +27,10 @@ const Index = ({beers}) => <div>
   </section>
 </div>;
 
-  Index.getInitialProps = async () => {
-    const res = await fetch('http://localhost:3000/beers');
-    console.log(res.responseText);
-    const json = await res.json();
-    return {beers: json};
-  };
+Index.getInitialProps = async () => {
+  const res = await fetch('http://localhost:3000/beers');
+  const json = await res.json();
+  return {beers: json};
+};
 
 export default Index;
